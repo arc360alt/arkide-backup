@@ -1,0 +1,19 @@
+{
+  "name": "arkide-metro-server",
+  "version": "1.0.0",
+  "description": "Metro server for ArkIDE project, serving project files and APIs.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["metro", "server", "arkide", "express", "mongodb", "minio"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongodb": "^6.5.0",
+    "minio": "^7.0.28",
+    "bson": "^6.3.0",
+    "pmp-protobuf": "*"
+  }
+}
