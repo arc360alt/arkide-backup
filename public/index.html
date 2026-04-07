@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArkIDE — Goodbye</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #d4d4d4;
+            --paper: #2e2e2e;
+            --muted: #c0c0c0;
+            --rule: #d4cfc8;
+            --accent: #b8b8b8;
+            --dust: #c8c3bc;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'EB Garamond', Georgia, serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grain overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0.5;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 24px 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::after {
+            content: '';
+            display: block;
+            width: 1px;
+            height: 60px;
+            background: var(--rule);
+            margin: 48px auto 0;
+        }
+
+        /* Logo */
+        .logo-wrap {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+        }
+
+        .logo-svg {
+            width: 120px;
+            height: 120px;
+            filter: saturate(0) brightness(0.3);
+            margin-bottom: 32px;
+        }
+
+        /* RIP text */
+        .rip-eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+            opacity: 0;
+            animation: fadeUp 1s ease 0.6s forwards;
+        }
+
+        .rip-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(42px, 8vw, 80px);
+            font-weight: 400;
+            font-style: italic;
+            line-height: 1.05;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            opacity: 0;
+            animation: fadeUp 1.2s cubic-bezier(0.22, 1, 0.36, 1) 0.8s forwards;
+        }
+
+        .rip-title .year-range {
+            font-style: normal;
+            font-size: 0.45em;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            display: block;
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            margin-top: 8px;
+        }
+
+        /* Body text / placeholder */
+        .farewell-text {
+            max-width: 540px;
+            margin: 36px auto 0;
+            font-size: 18px;
+            line-height: 1.75;
+            color: var(--accent);
+            opacity: 0;
+            animation: fadeUp 1s ease 1.2s forwards;
+        }
+
+        .farewell-text p + p {
+            margin-top: 1em;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 44px;
+            flex-wrap: wrap;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.5s forwards;
+        }
+
+        .btn {
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 14px 32px;
+            border: 1px solid var(--ink);
+            color: var(--ink);
+            background: transparent;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .btn-primary {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* ===== STATS BAR ===== */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 48px;
+            padding: 32px 24px;
+            border-top: 1px solid var(--rule);
+            border-bottom: 1px solid var(--rule);
+            flex-wrap: wrap;
+            opacity: 0;
+            animation: fadeUp 1s ease 1.8s forwards;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-weight: 700;
+            display: block;
+        }
+
+        .stat-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* ===== ARCHIVE SECTION ===== */
+        .archive {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 64px 24px 100px;
+            opacity: 0;
+            animation: fadeUp 1s ease 2s forwards;
+        }
+
+        .section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--rule);
+        }
+
+        /* Search */
+        .search-wrap {
+            position: relative;
+            margin-bottom: 32px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            background: white;
+            border: 1px solid var(--rule);
+            color: var(--ink);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: var(--ink);
+        }
+
+        .search-input::placeholder {
+            color: var(--dust);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        /* Project list */
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .project-row {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--rule);
+            transition: background 0.15s;
+        }
+
+        .project-row:first-child {
+            border-top: 1px solid var(--rule);
+        }
+
+        .project-row:hover {
+            background: rgba(104, 104, 104, 0.6);
+            margin: 0 -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .project-name {
+            font-size: 16px;
+            line-height: 1.3;
+            color: var(--ink);
+        }
+
+        .project-meta {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            margin-top: 3px;
+            letter-spacing: 0.05em;
+        }
+
+        .project-views {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .download-btn {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border: 1px solid var(--rule);
+            background: transparent;
+            color: var(--ink);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.15s;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .download-btn:hover {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        /* Loading & empty states */
+        .state-msg {
+            text-align: center;
+            padding: 60px 0;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.2s infinite;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 48px;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+        }
+
+        .page-btn {
+            padding: 8px 20px;
+            border: 1px solid var(--rule);
+            background: transparent;
+            color: var(--ink);
+            cursor: pointer;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            transition: all 0.15s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: var(--ink);
+            color: var(--paper);
+            border-color: var(--ink);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.3;
+            cursor: default;
+        }
+
+        .page-info {
+            color: var(--muted);
+            letter-spacing: 0.1em;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px;
+            border-top: 1px solid var(--rule);
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--dust);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        /* Divider ornament */
+        .ornament {
+            text-align: center;
+            color: var(--dust);
+            font-size: 20px;
+            letter-spacing: 0.5em;
+            padding: 32px 0;
+        }
+
+        @media (max-width: 600px) {
+            .project-row {
+                grid-template-columns: 1fr auto;
+            }
+            .project-views {
+                display: none;
+            }
+            .stats-bar {
+                gap: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="logo-wrap">
+            <!-- ArkIDE logo placeholder — replace src with your actual logo -->
+            <img width="100px" src="https://extensions.arkide.site/navicon.png" alt="ArkIDE Logo" class="logo-img">
+        </div>
+
+        <p class="rip-eyebrow">In Memoriam</p>
+        <h1 class="rip-title">
+            Rest in Peace, ArkIDE
+            <span class="year-range">Early 2025 — 2026</span>
+        </h1>
+
+        <div class="farewell-text">
+            <p>
+                <!-- PLACEHOLDER — replace this text with your own farewell message -->
+                Huge thanks to everyone who belived in this platform, but sadly this is a bit too much for me to handel.
+                17 repositories, 2 API's, 44 users, and more, I had to handel over the lifetime of this project while still in school.
+                So to keep my mental health in check I had to let go of this project to ensure less stress on me in the future.
+            </p>
+            <p>
+                All projects are archived below and available to download for the time being.
+            </p>
+        </div>
+
+        <div class="btn-row">
+            <a href="https://extensions.arkide.site" class="btn btn-primary" target="_blank" rel="noopener">Extensions ↗</a>
+            <a href="https://studio.arkide.site" class="btn" target="_blank" rel="noopener">Studio ↗</a>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <div class="stats-bar" id="statsBar">
+        <div class="stat">
+            <span class="stat-value" id="statProjects">—</span>
+            <span class="stat-label">Projects</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" id="statUsers">—</span>
+            <span class="stat-label">Creators</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" id="statViews">—</span>
+            <span class="stat-label">Total Views</span>
+        </div>
+    </div>
+
+    <div class="ornament">· · ·</div>
+
+    <!-- ARCHIVE -->
+    <section class="archive">
+        <p class="section-label">Project Archive</p>
+
+        <div class="search-wrap">
+            <span class="search-icon">⌕</span>
+            <input
+                type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="Search projects by name..."
+                autocomplete="off"
+                spellcheck="false"
+            >
+        </div>
+
+        <div id="projectList" class="project-list">
+            <div class="state-msg loading-dots">Loading archive</div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display:none">
+            <button class="page-btn" id="prevBtn" disabled>← Prev</button>
+            <span class="page-info" id="pageInfo">Page 1</span>
+            <button class="page-btn" id="nextBtn">Next →</button>
+        </div>
+    </section>
+
+    <footer>
+        ArkIDE Archive &mdash; All projects preserved &mdash; Thank you for building with us
+    </footer>
+
+    <script>
+        const PAGE_SIZE = 50;
+        let currentPage = 0;
+        let totalProjects = 0;
+        let searchQuery = '';
+        let searchTimeout;
+
+        // ── Stats ──────────────────────────────────────────
+        async function loadStats() {
+            try {
+                const res = await fetch('/api/stats');
+                if (!res.ok) throw new Error();
+                const data = await res.json();
+                document.getElementById('statProjects').textContent = fmt(data.projectCount);
+                document.getElementById('statUsers').textContent = fmt(data.userCount);
+                document.getElementById('statViews').textContent = fmt(data.totalViews);
+            } catch {
+                // silently fail
+            }
+        }
+
+        function fmt(n) {
+            if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+            if (n >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+            return String(n);
+        }
+
+        // ── Projects ───────────────────────────────────────
+        async function loadProjects() {
+            const list = document.getElementById('projectList');
+            list.innerHTML = '<div class="state-msg loading-dots">Loading archive</div>';
+            document.getElementById('pagination').style.display = 'none';
+
+            try {
+                const params = new URLSearchParams({
+                    page: currentPage,
+                    pageSize: PAGE_SIZE,
+                    search: searchQuery
+                });
+
+                const res = await fetch(`/api/projects?${params}`);
+                if (!res.ok) throw new Error('Server error');
+                const data = await res.json();
+
+                totalProjects = data.total;
+                renderProjects(data.projects);
+                renderPagination();
+            } catch (err) {
+                list.innerHTML = `<div class="state-msg">Could not connect to database.<br><small style="font-size:10px;opacity:0.6">${err.message}</small></div>`;
+            }
+        }
+
+        function renderProjects(projects) {
+            const list = document.getElementById('projectList');
+
+            if (projects.length === 0) {
+                list.innerHTML = '<div class="state-msg">No projects found.</div>';
+                return;
+            }
+
+            list.innerHTML = projects.map(p => {
+                const date = p.date ? new Date(p.date).getFullYear() : '';
+                const author = p.authorUsername || 'unknown';
+                const views = p.views ? fmt(p.views) + ' views' : '';
+                const title = escHtml(p.title || 'Untitled Project');
+
+                return `
+                <div class="project-row">
+                    <div>
+                        <div class="project-name">${title}</div>
+                        <div class="project-meta">by ${escHtml(author)}${date ? ` &middot; ${date}` : ''}${p.public === false ? ' &middot; private' : ''}</div>
+                    </div>
+                    <span class="project-views">${views}</span>
+                    <a
+                        class="download-btn"
+                        href="/api/projects/${escHtml(p.id)}/download"
+                        download="${escHtml((p.title || 'project').replace(/[^a-z0-9]/gi,'_'))}.pmp"
+                    >↓ Download</a>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(totalProjects / PAGE_SIZE);
+            if (totalPages <= 1) return;
+
+            const pg = document.getElementById('pagination');
+            pg.style.display = 'flex';
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = currentPage >= totalPages - 1;
+            document.getElementById('pageInfo').textContent =
+                `Page ${currentPage + 1} of ${totalPages} (${fmt(totalProjects)} total)`;
+        }
+
+        // ── Search ─────────────────────────────────────────
+        document.getElementById('searchInput').addEventListener('input', e => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                searchQuery = e.target.value.trim();
+                currentPage = 0;
+                loadProjects();
+            }, 350);
+        });
+
+        // ── Pagination ─────────────────────────────────────
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentPage > 0) { currentPage--; loadProjects(); window.scrollTo({top: document.querySelector('.archive').offsetTop - 20, behavior:'smooth'}); }
+        });
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            currentPage++; loadProjects(); window.scrollTo({top: document.querySelector('.archive').offsetTop - 20, behavior:'smooth'});
+        });
+
+        // ── Helpers ────────────────────────────────────────
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/"/g,'&quot;');
+        }
+
+        // ── Init ───────────────────────────────────────────
+        loadStats();
+        loadProjects();
+    </script>
+</body>
+</html>

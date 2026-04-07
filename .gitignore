@@ -1,0 +1,13 @@
+# sensitive data
+loggedIPs.bson
+messages.bson
+oauthIDs.bson
+oauthStates.bson
+passwordResetStates.metadata
+profileComments.bson
+projectComments.bson
+reports.bson
+runtimeConfig.bson
+sentEmails.bson
+tagWeights.bson
+blocking.bson
